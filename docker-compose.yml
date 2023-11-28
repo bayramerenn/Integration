@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+   integration-api:
+    image: ${DOCKER_REGISTRY-}integrationdistributedapi
+    build:
+      context: .
+      dockerfile: IntegrationDistributed.API/Dockerfile

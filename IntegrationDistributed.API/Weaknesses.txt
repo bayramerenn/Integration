@@ -1,0 +1,27 @@
+﻿Bağımsız Redis Sunucularının Kurulumu:
+Projede kullanılan Redlock algoritması için bağımsız Redis sunucularının kurulması gerekmektedir.
+Farklı sunuculara kurulacak olan bu Redis sunucularının yönetimi, zaman zaman zorluklar doğurabilir.
+
+Network Gecikmeleri ve Sorunları:
+Dağıtık sistemlerde, network sel sorunları yaşandığında gecikmeler meydana gelebilir.
+Bu durum, özellikle Redlock algoritması tarafından kullanılan N adet Redis sunucusuna sıralı kilit alma işlemlerinde etkili olabilir.
+
+Redlock Algoritmasının Quorum Kullanımı:
+Redlock algoritması, kilit alma işlemi sırasında Quorum şartını uygular.
+N/2 + 1 şartıyla, örneğin 5 sunucu kullanıldığında en fazla 2 sunuca kayıp yaşanabilir. 
+Ancak 3 sunucu kaybı durumunda Quorum şartı karşılanamaz ve proje çalışmaz.
+Redlock algoritması, uygulamanın ihtiyaçlarına göre optimize edilmelidir.
+
+Bekleme Süreleri ve Büyüyen Data Seti:
+Her işlem için belirlenen bekleme süreleri, zamanla data setinin büyümesine neden olabilir.
+Bu durum, kayıt işlemlerinin süresinin artmasına ve işlem bitmeden lock'ların Redisten silinmesine yol açabilir.
+Bu durumun iyi bir şekilde monitor edilmesi önemlidir.
+
+
+Bekleme Süreleri ve Database Tarafında Lock Sorunları:
+Proje içinde örnek bir database kayıt işlemi bulunmaktadır.
+Redlock ile Redis'e iki tür kayıt atılabilir. İlk yöntemde bir bekleme süresi belirlenir.
+Database kayıt edilen dataların zamanla kayıt süreleri artabilir.
+Bu durum, işlemlerin henüz tamamlanmadan lock'ların Redis'ten silinmesine yol açabilir.
+İkinci yöntemde ise beklememe süresi verilmez. Ancak, bu yöntem daha büyük sorunlara neden olabilir.
+Örneğin, bir işlem gerçekleşirken database tarafında locklama sorunu oluşabilir ve kuyrukta birikmelere yol açabilir.

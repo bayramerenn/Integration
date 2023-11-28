@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+  integration-api:
+    image: ${DOCKER_REGISTRY-}integrationapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+    depends_on:
+      - postgredb
+    ports:
+      - "7000:80"
+    deploy:
+      replicas: 2
+    networks:
+      - webnet
+
+  postgredb:
+    image: postgres
+    container_name: postgredb
+    restart: always
+    ports:
+      - "5435:5432"
+    volumes:
+      - database_volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Password12*
+      - POSTGRES_DB=postgredb
+      - TZ=Europe/Istanbul
+    networks:
+      - webnet
+
+  redis1:
+    image: redis
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - webnet
+ 
+  redis2:
+    image: redis
+    restart: always
+    ports:
+      - "6381:6379"
+    networks:
+      - webnet
+ 
+  redis3:
+    image: redis
+    restart: always
+    ports:
+      - "6382:6379"
+    networks:
+      - webnet
+
+networks:
+  webnet:
+   driver: overlay
+
+volumes:
+  database_volume:
