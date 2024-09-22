@@ -18,7 +18,7 @@ namespace IntegrationDistributed.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ItemDto dto, CancellationToken cancellationToken)
         {
-            Thread.Sleep(2_000);
+            await Task.Delay(2000, cancellationToken);
 
             var result = await _itemIntegrationService.SaveItemAsync(dto.Content, cancellationToken);
 
