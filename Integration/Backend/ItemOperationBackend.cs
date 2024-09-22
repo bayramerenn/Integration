@@ -10,8 +10,6 @@ public sealed class ItemOperationBackend
 
     public Item SaveItem(string itemContent)
     {
-        // This simulates how long it takes to save
-        // the item content. Forty seconds, give or take.
         Thread.Sleep(2_000);
         
         var item = new Item();

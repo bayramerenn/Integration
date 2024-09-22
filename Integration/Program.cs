@@ -8,9 +8,9 @@ public abstract class Program
 {
     public static async Task Main(string[] args)
     {
-        //ProcessSingleServerOperation();
+        ProcessSingleServerOperation();
 
-        await ProcessDisributedServerOperation();
+        //await ProcessDisributedServerOperation();
     }
 
     public static void ProcessSingleServerOperation()
@@ -52,7 +52,6 @@ public abstract class Program
 
             for (int i = 0; i < requestCount; i++)
             {
-                // Her istek için yeni bir task oluştur
                 tasks[i] = MakeRequest(client, apiUrl);
             }
             await Task.WhenAll(tasks);
@@ -88,7 +87,6 @@ public abstract class Program
 
     private static char GetRandomChar()
     {
-        // Belirli bir karakter dizisinden rastgele bir karakter seç
         string characters = "abcde";
         Random random = new Random();
         int index = random.Next(characters.Length);

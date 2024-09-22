@@ -4,21 +4,26 @@ using System.Collections.Concurrent;
 
 namespace Integration.Service;
 
-public sealed class ItemIntegrationService
+public sealed class ItemIntegrationService : IDisposable
 {
+    private readonly ConcurrentDictionary<string, DateTime> _processedContents = new ConcurrentDictionary<string, DateTime>();
+    private readonly Timer _cleanupTimer;
+    private readonly TimeSpan _entryLifetime = TimeSpan.FromMinutes(10);
 
-    //This is a dependency that is normally fulfilled externally.
     private ItemOperationBackend ItemIntegrationBackend { get; set; } = new();
 
-    private readonly ConcurrentDictionary<string, bool> _processedContents = new ConcurrentDictionary<string, bool>();
+    public ItemIntegrationService()
+    {
+        _cleanupTimer = new Timer(CleanupProcessedContents, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+    }
 
-    // This is called externally and can be called multithreaded, in parallel.
-    // More than one item with the same content should not be saved. However,
-    // calling this with different contents at the same time is OK, and should
-    // be allowed for performance reasons.
     public Result SaveItem(string itemContent)
     {
-        if (!_processedContents.TryAdd(itemContent, true))
+        var now = DateTime.UtcNow;
+
+        var added = _processedContents.TryAdd(itemContent, now);
+
+        if (!added)
         {
             return new Result(false, $"Duplicate item received with content {itemContent}.");
         }
@@ -31,6 +36,24 @@ public sealed class ItemIntegrationService
         var item = ItemIntegrationBackend.SaveItem(itemContent);
 
         return new Result(true, $"Item with content {itemContent} saved with id {item.Id}");
+    }
+
+    private void CleanupProcessedContents(object state)
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var kvp in _processedContents)
+        {
+            if (now - kvp.Value > _entryLifetime)
+            {
+                _processedContents.TryRemove(kvp.Key, out _);
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _cleanupTimer?.Dispose();
     }
 
     public List<Item> GetAllItems()
