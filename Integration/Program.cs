@@ -8,7 +8,10 @@ public abstract class Program
 {
     public static async Task Main(string[] args)
     {
-        ProcessSingleServerOperation();
+        await Task.Run(() =>
+        {
+            ProcessSingleServerOperation();
+        });
 
         //await ProcessDisributedServerOperation();
     }
